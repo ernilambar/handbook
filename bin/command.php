@@ -36,9 +36,9 @@ class Command {
 		}
 
 		self::gen_api_docs();
-		self::gen_commands( $args, $assoc_args );
-		self::gen_commands_manifest();
-		self::gen_hb_manifest();
+		// self::gen_commands( $args, $assoc_args );
+		// self::gen_commands_manifest();
+		// self::gen_hb_manifest();
 		WP_CLI::success( 'Generated all doc pages.' );
 	}
 
@@ -56,6 +56,10 @@ class Command {
 				'parse'  => 'json',
 			]
 		);
+
+    var_dump("API:");
+    print_r( $apis );
+    return;
 		$categories = [
 			'Registration' => [],
 			'Output'       => [],
@@ -648,6 +652,7 @@ EOT;
 		$ret['short_description'] = trim( implode( ' ', $short_desc ) );
 		$long_description         = trim( implode( PHP_EOL, $bits ), PHP_EOL );
 		$ret['long_description']  = $long_description;
+    var_dump( $ret );
 		return $ret;
 	}
 
