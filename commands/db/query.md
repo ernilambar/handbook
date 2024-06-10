@@ -2,6 +2,8 @@
 
 Executes a SQL query against the database.
 
+This command runs on the `after_wp_config_load` hook, after wp-config.php has been loaded into scope.
+
 Executes an arbitrary SQL query using `DB_HOST`, `DB_NAME`, `DB_USER`
  and `DB_PASSWORD` database credentials specified in wp-config.php.
 
@@ -60,24 +62,25 @@ Use the `--skip-column-names` MySQL argument to exclude the headers from a SELEC
     | 2 | home | http://wordpress-develop.dev | yes |
     +---+------+------------------------------+-----+
 
-### GLOBAL PARAMETERS
+### MULTISITE USAGE
 
-These [global parameters](https://make.wordpress.org/cli/handbook/config/) have the same behavior across all commands and affect how WP-CLI interacts with WordPress.
+Please note that the global `--url` parameter will have no effect on this command. In order to query for data in a site other than your primary site, you will need to manually modify the table names to use the prefix that includes the site's ID.
 
-| **Argument**    | **Description**              |
-|:----------------|:-----------------------------|
-| `--path=<path>` | Path to the WordPress files. |
-| `--url=<url>` | Pretend request came from given URL. In multisite, this argument is how the target site is specified. |
-| `--ssh=[<scheme>:][<user>@]<host\|container>[:<port>][<path>]` | Perform operation against a remote server over SSH (or a container using scheme of "docker", "docker-compose", "docker-compose-run", "vagrant"). |
-| `--http=<http>` | Perform operation against a remote WordPress installation over HTTP. |
-| `--user=<id\|login\|email>` | Set the WordPress user. |
-| `--skip-plugins[=<plugins>]` | Skip loading all plugins, or a comma-separated list of plugins. Note: mu-plugins are still loaded. |
-| `--skip-themes[=<themes>]` | Skip loading all themes, or a comma-separated list of themes. |
-| `--skip-packages` | Skip loading all installed packages. |
-| `--require=<path>` | Load PHP file before running the command (may be used more than once). |
-| `--exec=<php-code>` | Execute PHP code before running the command (may be used more than once). |
-| `--context=<context>` | Load WordPress in a given context. |
-| `--[no-]color` | Whether to colorize the output. |
-| `--debug[=<group>]` | Show all PHP errors and add verbosity to WP-CLI output. Built-in groups include: bootstrap, commandfactory, and help. |
-| `--prompt[=<assoc>]` | Prompt the user to enter values for all command arguments, or a subset specified as comma-separated values. |
-| `--quiet` | Suppress informational messages. |
+For example, to get the `home` option for your second site, modify the example above like so:
+
+    $ wp db query 'SELECT option_value FROM wp_2_options WHERE option_name="home"' --skip-column-names
+    +----------------------+
+    | https://example2.com |
+    +----------------------+
+
+To confirm the ID for the site you want to query, you can use the `wp site list` command:
+
+    # wp site list --fields=blog_id,url
+    +---------+-----------------------+
+    | blog_id | url                   |
+    +---------+-----------------------+
+    | 1       | https://example1.com/ |
+    | 2       | https://example2.com/ |
+    +---------+-----------------------+
+
+

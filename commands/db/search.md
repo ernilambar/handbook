@@ -65,6 +65,12 @@ default: 40
 [\--match_color=&lt;color_code&gt;]
 : Percent color code to use for the match (unless both before and after context are 0, when no color code is used). For a list of available percent color codes, see below. Default '%3%k' (black on a mustard background).
 
+[\--fields=&lt;fields&gt;]
+: Get a specific subset of the fields.
+
+[\--format=&lt;format&gt;]
+: Render output in a particular format.
+
 The percent color codes available are:
 
 | Code | Color
@@ -133,24 +139,19 @@ They can be concatenated. For instance, the default match color of black on a mu
     # SQL search and delete records from database table 'wp_options' where 'option_name' match 'foo'
     wp db query "DELETE from wp_options where option_id in ($(wp db query "SELECT GROUP_CONCAT(option_id SEPARATOR ',') from wp_options where option_name like '%foo%';" --silent --skip-column-names))"
 
-### GLOBAL PARAMETERS
+    # Search for a string and print the result as a table
+    $ wp db search https://localhost:8889 --format=table --fields=table,column,match
+    +------------+--------------+-----------------------------+
+    | table      | column       | match                       |
+    +------------+--------------+-----------------------------+
+    | wp_options | option_value | https://localhost:8889      |
+    | wp_options | option_value | https://localhost:8889      |
+    | wp_posts   | guid         | https://localhost:8889/?p=1 |
+    | wp_users   | user_url     | https://localhost:8889      |
+    +------------+--------------+-----------------------------+
 
-These [global parameters](https://make.wordpress.org/cli/handbook/config/) have the same behavior across all commands and affect how WP-CLI interacts with WordPress.
+    # Search for a string and get only the IDs (only works for a single table)
+    $ wp db search https://localhost:8889 wp_options --format=ids
+    1 2
 
-| **Argument**    | **Description**              |
-|:----------------|:-----------------------------|
-| `--path=<path>` | Path to the WordPress files. |
-| `--url=<url>` | Pretend request came from given URL. In multisite, this argument is how the target site is specified. |
-| `--ssh=[<scheme>:][<user>@]<host\|container>[:<port>][<path>]` | Perform operation against a remote server over SSH (or a container using scheme of "docker", "docker-compose", "docker-compose-run", "vagrant"). |
-| `--http=<http>` | Perform operation against a remote WordPress installation over HTTP. |
-| `--user=<id\|login\|email>` | Set the WordPress user. |
-| `--skip-plugins[=<plugins>]` | Skip loading all plugins, or a comma-separated list of plugins. Note: mu-plugins are still loaded. |
-| `--skip-themes[=<themes>]` | Skip loading all themes, or a comma-separated list of themes. |
-| `--skip-packages` | Skip loading all installed packages. |
-| `--require=<path>` | Load PHP file before running the command (may be used more than once). |
-| `--exec=<php-code>` | Execute PHP code before running the command (may be used more than once). |
-| `--context=<context>` | Load WordPress in a given context. |
-| `--[no-]color` | Whether to colorize the output. |
-| `--debug[=<group>]` | Show all PHP errors and add verbosity to WP-CLI output. Built-in groups include: bootstrap, commandfactory, and help. |
-| `--prompt[=<assoc>]` | Prompt the user to enter values for all command arguments, or a subset specified as comma-separated values. |
-| `--quiet` | Suppress informational messages. |
+

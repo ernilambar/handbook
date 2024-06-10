@@ -36,9 +36,9 @@ class Command {
 		}
 
 		self::gen_api_docs();
-		// self::gen_commands( $args, $assoc_args );
-		// self::gen_commands_manifest();
-		// self::gen_hb_manifest();
+		self::gen_commands( $args, $assoc_args );
+		self::gen_commands_manifest();
+		self::gen_hb_manifest();
 		WP_CLI::success( 'Generated all doc pages.' );
 	}
 
@@ -57,9 +57,6 @@ class Command {
 			]
 		);
 
-    var_dump("API:");
-    print_r( $apis );
-    return;
 		$categories = [
 			'Registration' => [],
 			'Output'       => [],
@@ -624,19 +621,22 @@ EOT;
 					$ret['description'] .= PHP_EOL . "{$extra_line}{$info}";
 				} else {
 					preg_match( '/@(\w+)/', $info, $matches );
-					$param_name = $matches[1];
-					$value      = str_replace( "@$param_name ", '', $info );
-					if ( ! isset( $ret['parameters'][ $param_name ] ) ) {
-						$ret['parameters'][ $param_name ] = [];
-					}
-					$ret['parameters'][ $param_name ][] = preg_split( '/[\s]+/', $value, 3 );
-					end( $ret['parameters'][ $param_name ] );
-					$key = key( $ret['parameters'][ $param_name ] );
-					reset( $ret['parameters'][ $param_name ] );
-					if ( ! empty( $ret['parameters'][ $param_name ][ $key ][2] )
-						&& '{' === substr( $ret['parameters'][ $param_name ][ $key ][2], -1 ) ) {
-						$in_param = [ $param_name, $key ];
-					}
+          if ( isset( $matches[1]) ) {
+            $param_name = $matches[1];
+            $value      = str_replace( "@$param_name ", '', $info );
+            if ( ! isset( $ret['parameters'][ $param_name ] ) ) {
+              $ret['parameters'][ $param_name ] = [];
+            }
+            $ret['parameters'][ $param_name ][] = preg_split( '/[\s]+/', $value, 3 );
+            end( $ret['parameters'][ $param_name ] );
+            $key = key( $ret['parameters'][ $param_name ] );
+            reset( $ret['parameters'][ $param_name ] );
+            if ( ! empty( $ret['parameters'][ $param_name ][ $key ][2] )
+              && '{' === substr( $ret['parameters'][ $param_name ][ $key ][2], -1 ) ) {
+              $in_param = [ $param_name, $key ];
+            }
+
+          }
 				}
 				$extra_line = '';
 			} else {

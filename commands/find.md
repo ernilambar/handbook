@@ -2,36 +2,13 @@
 
 Find WordPress installations on the filesystem.
 
+This command runs on the `before_wp_load` hook, just before the WP load process begins.
+
 Recursively iterates subdirectories of provided &lt;path&gt; to find and report WordPress installations. A WordPress installation is a wp-includes directory with a version.php file.
 
 Avoids recursing some known paths (e.g. /node_modules/, hidden sys dirs) to significantly improve performance.
 
 Indicates depth at which the WordPress installations was found, and its alias, if it has one.
-
-```
-$ wp find ./
-+--------------------------------------+---------------------+-------+--------+
-| version_path                         | version             | depth | alias  |
-+--------------------------------------+---------------------+-------+--------+
-| /Users/wpcli/wp-includes/version.php | 4.8-alpha-39357-src | 2     | @wpcli |
-+--------------------------------------+---------------------+-------+--------+
-```
-
-### AVAILABLE FIELDS
-
-These fields will be displayed by default for each installation:
-
-* version_path - Path to the version.php file.
-* version - WordPress version.
-* depth - Directory depth at which the installation was found.
-* alias - WP-CLI alias, if one is registered.
-
-These fields are optionally available:
-
-* wp_path - Path that can be passed to `--path=&lt;path&gt;` global parameter.
-* db_host - Host name for the database.
-* db_user - User name for the database.
-* db_name - Database name for the database.
 
 ### OPTIONS
 
@@ -68,24 +45,30 @@ options:
 [\--verbose]
 : Log useful information to STDOUT.
 
-### GLOBAL PARAMETERS
+### AVAILABLE FIELDS
 
-These [global parameters](https://make.wordpress.org/cli/handbook/config/) have the same behavior across all commands and affect how WP-CLI interacts with WordPress.
+These fields will be displayed by default for each installation:
 
-| **Argument**    | **Description**              |
-|:----------------|:-----------------------------|
-| `--path=<path>` | Path to the WordPress files. |
-| `--url=<url>` | Pretend request came from given URL. In multisite, this argument is how the target site is specified. |
-| `--ssh=[<scheme>:][<user>@]<host\|container>[:<port>][<path>]` | Perform operation against a remote server over SSH (or a container using scheme of "docker", "docker-compose", "docker-compose-run", "vagrant"). |
-| `--http=<http>` | Perform operation against a remote WordPress installation over HTTP. |
-| `--user=<id\|login\|email>` | Set the WordPress user. |
-| `--skip-plugins[=<plugins>]` | Skip loading all plugins, or a comma-separated list of plugins. Note: mu-plugins are still loaded. |
-| `--skip-themes[=<themes>]` | Skip loading all themes, or a comma-separated list of themes. |
-| `--skip-packages` | Skip loading all installed packages. |
-| `--require=<path>` | Load PHP file before running the command (may be used more than once). |
-| `--exec=<php-code>` | Execute PHP code before running the command (may be used more than once). |
-| `--context=<context>` | Load WordPress in a given context. |
-| `--[no-]color` | Whether to colorize the output. |
-| `--debug[=<group>]` | Show all PHP errors and add verbosity to WP-CLI output. Built-in groups include: bootstrap, commandfactory, and help. |
-| `--prompt[=<assoc>]` | Prompt the user to enter values for all command arguments, or a subset specified as comma-separated values. |
-| `--quiet` | Suppress informational messages. |
+* version_path - Path to the version.php file.
+* version - WordPress version.
+* depth - Directory depth at which the installation was found.
+* alias - WP-CLI alias, if one is registered.
+
+These fields are optionally available:
+
+* wp_path - Path that can be passed to `--path=&lt;path&gt;` global parameter.
+* db_host - Host name for the database.
+* db_user - User name for the database.
+* db_name - Database name for the database.
+
+### EXAMPLES
+
+    # Find WordPress installations.
+    $ wp find ./
+    +--------------------------------------+---------------------+-------+--------+
+    | version_path                         | version             | depth | alias  |
+    +--------------------------------------+---------------------+-------+--------+
+    | /Users/wpcli/wp-includes/version.php | 4.8-alpha-39357-src | 2     | @wpcli |
+    +--------------------------------------+---------------------+-------+--------+
+
+
