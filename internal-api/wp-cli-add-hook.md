@@ -1,6 +1,6 @@
 # WP_CLI::add_hook()
 
-Schedule a callback to be executed at a certain point.
+@access public @category Registration
 
 ***
 
@@ -9,9 +9,6 @@ Schedule a callback to be executed at a certain point.
     WP_CLI::add_hook( $when, $callback )
 
 <div>
-<strong>$when</strong> (string) Identifier for the hook.<br />
-<strong>$callback</strong> (mixed) Callback to execute when hook is called.<br />
-<strong>@return</strong> (null) <br />
 </div>
 
 
@@ -19,42 +16,9 @@ Schedule a callback to be executed at a certain point.
 
 ## Notes
 
-Hooks conceptually are very similar to WordPress actions. WP-CLI hooks
-are typically called before WordPress is loaded.
-
-WP-CLI hooks include:
-
-* `before_add_command:<command>` - Before the command is added.
-* `after_add_command:<command>` - After the command was added.
-* `before_invoke:<command>` (1) - Just before a command is invoked.
-* `after_invoke:<command>` (1) - Just after a command is invoked.
-* `find_command_to_run_pre` - Just before WP-CLI finds the command to run.
-* `before_registering_contexts` (1) - Before the contexts are registered.
-* `before_wp_load` - Just before the WP load process begins.
-* `before_wp_config_load` - After wp-config.php has been located.
-* `after_wp_config_load` - After wp-config.php has been loaded into scope.
-* `after_wp_load` - Just after the WP load process has completed.
-* `before_run_command` (3) - Just before the command is executed.
-
-The parentheses behind the hook name denote the number of arguments
-being passed into the hook. For such hooks, the callback should return
-the first argument again, making them work like a WP filter.
-
-WP-CLI commands can create their own hooks with `WP_CLI::do_hook()`.
-
-If additional arguments are passed through the `WP_CLI::do_hook()` call,
-these will be passed on to the callback provided by `WP_CLI::add_hook()`.
-
-```
-# `wp network meta` confirms command is executing in multisite context.
-WP_CLI::add_command( 'network meta', 'Network_Meta_Command', array(
-   'before_invoke' => function ( $name ) {
-       if ( !is_multisite() ) {
-           WP_CLI::error( 'This is not a multisite installation.' );
-       }
-   }
-) );
-```
+@param string $when Identifier for the hook.
+@param mixed $callback Callback to execute when hook is called.
+@return null
 
 
 *Internal API documentation is generated from the WP-CLI codebase on every release. To suggest improvements, please submit a pull request.*
@@ -68,13 +32,124 @@ WP_CLI::add_command( 'network meta', 'Network_Meta_Command', array(
 
 
 
-<li><strong><a href="https://make.wordpress.org/cli/handbook/internal-api/wp-cli-do-hook/">WP_CLI::do_hook()</a></strong> - Execute callbacks registered to a given hook.</li>
+<li><strong><a href="https://make.wordpress.org/cli/handbook/internal-api/wp-cli-utils-format-items/">WP_CLI\Utils\format_items()</a></strong> - @access public @category Output</li>
 
 
-<li><strong><a href="https://make.wordpress.org/cli/handbook/internal-api/wp-cli-add-wp-hook/">WP_CLI::add_wp_hook()</a></strong> - Add a callback to a WordPress action or filter.</li>
+<li><strong><a href="https://make.wordpress.org/cli/handbook/internal-api/wp-cli-utils-write-csv/">WP_CLI\Utils\write_csv()</a></strong> - @access public</li>
 
 
-<li><strong><a href="https://make.wordpress.org/cli/handbook/internal-api/wp-cli-add-command/">WP_CLI::add_command()</a></strong> - Register a command to WP-CLI.</li>
+<li><strong><a href="https://make.wordpress.org/cli/handbook/internal-api/wp-cli-utils-launch-editor-for-input/">WP_CLI\Utils\launch_editor_for_input()</a></strong> - @access public @category Input</li>
+
+
+<li><strong><a href="https://make.wordpress.org/cli/handbook/internal-api/wp-cli-utils-make-progress-bar/">WP_CLI\Utils\make_progress_bar()</a></strong> - @access public @category Output</li>
+
+
+<li><strong><a href="https://make.wordpress.org/cli/handbook/internal-api/wp-cli-utils-http-request/">WP_CLI\Utils\http_request()</a></strong> - @access public</li>
+
+
+<li><strong><a href="https://make.wordpress.org/cli/handbook/internal-api/wp-cli-utils-get-named-sem-ver/">WP_CLI\Utils\get_named_sem_ver()</a></strong> - @access public</li>
+
+
+<li><strong><a href="https://make.wordpress.org/cli/handbook/internal-api/wp-cli-utils-get-flag-value/">WP_CLI\Utils\get_flag_value()</a></strong> - @access public @category Input</li>
+
+
+<li><strong><a href="https://make.wordpress.org/cli/handbook/internal-api/wp-cli-utils-get-home-dir/">WP_CLI\Utils\get_home_dir()</a></strong> - @access public @category System</li>
+
+
+<li><strong><a href="https://make.wordpress.org/cli/handbook/internal-api/wp-cli-utils-trailingslashit/">WP_CLI\Utils\trailingslashit()</a></strong> - @access public @category System</li>
+
+
+<li><strong><a href="https://make.wordpress.org/cli/handbook/internal-api/wp-cli-utils-normalize-path/">WP_CLI\Utils\normalize_path()</a></strong> - @access public @category System</li>
+
+
+<li><strong><a href="https://make.wordpress.org/cli/handbook/internal-api/wp-cli-utils-get-temp-dir/">WP_CLI\Utils\get_temp_dir()</a></strong> - @access public @category System</li>
+
+
+<li><strong><a href="https://make.wordpress.org/cli/handbook/internal-api/wp-cli-utils-parse-ssh-url/">WP_CLI\Utils\parse_ssh_url()</a></strong> - @access public</li>
+
+
+<li><strong><a href="https://make.wordpress.org/cli/handbook/internal-api/wp-cli-utils-report-batch-operation-results/">WP_CLI\Utils\report_batch_operation_results()</a></strong> - @access public @category Input</li>
+
+
+<li><strong><a href="https://make.wordpress.org/cli/handbook/internal-api/wp-cli-utils-parse-str-to-argv/">WP_CLI\Utils\parse_str_to_argv()</a></strong> - @access public @category Input</li>
+
+
+<li><strong><a href="https://make.wordpress.org/cli/handbook/internal-api/wp-cli-utils-basename/">WP_CLI\Utils\basename()</a></strong> - @access public</li>
+
+
+<li><strong><a href="https://make.wordpress.org/cli/handbook/internal-api/wp-cli-utils-ispiped/">WP_CLI\Utils\isPiped()</a></strong> - @access public</li>
+
+
+<li><strong><a href="https://make.wordpress.org/cli/handbook/internal-api/wp-cli-utils-get-php-binary/">WP_CLI\Utils\get_php_binary()</a></strong> - @access public @category System</li>
+
+
+<li><strong><a href="https://make.wordpress.org/cli/handbook/internal-api/wp-cli-utils-proc-open-compat/">WP_CLI\Utils\proc_open_compat()</a></strong> - @access public</li>
+
+
+<li><strong><a href="https://make.wordpress.org/cli/handbook/internal-api/wp-cli-utils-esc-like/">WP_CLI\Utils\esc_like()</a></strong> - @access public</li>
+
+
+<li><strong><a href="https://make.wordpress.org/cli/handbook/internal-api/wp-cli-colorize/">WP_CLI::colorize()</a></strong> - @access public @category Output</li>
+
+
+<li><strong><a href="https://make.wordpress.org/cli/handbook/internal-api/wp-cli-do-hook/">WP_CLI::do_hook()</a></strong> - @access public @category Registration</li>
+
+
+<li><strong><a href="https://make.wordpress.org/cli/handbook/internal-api/wp-cli-add-wp-hook/">WP_CLI::add_wp_hook()</a></strong> - @access public @category Registration</li>
+
+
+<li><strong><a href="https://make.wordpress.org/cli/handbook/internal-api/wp-cli-add-command/">WP_CLI::add_command()</a></strong> - @return bool True on success, false if deferred, hard error if registration failed.</li>
+
+
+<li><strong><a href="https://make.wordpress.org/cli/handbook/internal-api/wp-cli-line/">WP_CLI::line()</a></strong> - @access public @category Output</li>
+
+
+<li><strong><a href="https://make.wordpress.org/cli/handbook/internal-api/wp-cli-log/">WP_CLI::log()</a></strong> - @access public @category Output</li>
+
+
+<li><strong><a href="https://make.wordpress.org/cli/handbook/internal-api/wp-cli-success/">WP_CLI::success()</a></strong> - @access public @category Output</li>
+
+
+<li><strong><a href="https://make.wordpress.org/cli/handbook/internal-api/wp-cli-debug/">WP_CLI::debug()</a></strong> - @access public @category Output</li>
+
+
+<li><strong><a href="https://make.wordpress.org/cli/handbook/internal-api/wp-cli-warning/">WP_CLI::warning()</a></strong> - @access public @category Output</li>
+
+
+<li><strong><a href="https://make.wordpress.org/cli/handbook/internal-api/wp-cli-error/">WP_CLI::error()</a></strong> - @access public @category Output</li>
+
+
+<li><strong><a href="https://make.wordpress.org/cli/handbook/internal-api/wp-cli-halt/">WP_CLI::halt()</a></strong> - @access public @category Output</li>
+
+
+<li><strong><a href="https://make.wordpress.org/cli/handbook/internal-api/wp-cli-error-multi-line/">WP_CLI::error_multi_line()</a></strong> - @access public @category Output</li>
+
+
+<li><strong><a href="https://make.wordpress.org/cli/handbook/internal-api/wp-cli-confirm/">WP_CLI::confirm()</a></strong> - @access public @category Input</li>
+
+
+<li><strong><a href="https://make.wordpress.org/cli/handbook/internal-api/wp-cli-read-value/">WP_CLI::read_value()</a></strong> - @access public @category Input</li>
+
+
+<li><strong><a href="https://make.wordpress.org/cli/handbook/internal-api/wp-cli-launch/">WP_CLI::launch()</a></strong> - @access public @category Execution</li>
+
+
+<li><strong><a href="https://make.wordpress.org/cli/handbook/internal-api/wp-cli-launch-self/">WP_CLI::launch_self()</a></strong> - @access public @category Execution</li>
+
+
+<li><strong><a href="https://make.wordpress.org/cli/handbook/internal-api/wp-cli-get-php-binary/">WP_CLI::get_php_binary()</a></strong> - @access public @category System</li>
+
+
+<li><strong><a href="https://make.wordpress.org/cli/handbook/internal-api/wp-cli-has-config/">WP_CLI::has_config()</a></strong> - @access public @category Input</li>
+
+
+<li><strong><a href="https://make.wordpress.org/cli/handbook/internal-api/wp-cli-get-config/">WP_CLI::get_config()</a></strong> - @access public @category Input</li>
+
+
+<li><strong><a href="https://make.wordpress.org/cli/handbook/internal-api/wp-cli-runcommand/">WP_CLI::runcommand()</a></strong> - @access public @category Execution</li>
+
+
+<li><strong><a href="https://make.wordpress.org/cli/handbook/internal-api/wp-cli-run-command/">WP_CLI::run_command()</a></strong> - @access public @category Execution</li>
 
 
 
