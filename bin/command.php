@@ -7,11 +7,68 @@ namespace WP_CLI\Handbook;
 
 use Mustache_Engine;
 use Reflection;
+use ReflectionClass;
 use WP_CLI;
 use WP_CLI\Utils;
 
 
 define( 'WP_CLI_HANDBOOK_PATH', dirname( __DIR__ ) );
+
+class HelloClass {
+	/**
+	 * Register a command to WP-CLI.
+	 *
+	 * WP-CLI supports using any callable class, function, or closure as a
+	 * command. `WP_CLI::add_command()` is used for both internal and
+	 * third-party command registration.
+	 *
+	 * Command arguments are parsed from PHPDoc by default, but also can be
+	 * supplied as an optional third argument during registration.
+	 *
+	 * ```
+	 * # Register a custom 'foo' command to output a supplied positional param.
+	 * #
+	 * # $ wp foo bar --append=qux
+	 * # Success: bar qux
+	 *
+	 * /**
+	 *  * My awesome closure command
+	 *  *
+	 *  * <message>
+	 *  * : An awesome message to display
+	 *  *
+	 *  * --append=<message>
+	 *  * : An awesome message to append to the original message.
+	 *  *
+	 *  * @when before_wp_load
+	 *  *\/
+	 * $foo = function( $args, $assoc_args ) {
+	 *     WP_CLI::success( $args[0] . ' ' . $assoc_args['append'] );
+	 * };
+	 * WP_CLI::add_command( 'foo', $foo );
+	 * ```
+	 *
+	 * @access public
+	 * @category Registration
+	 *
+	 * @param string   $name Name for the command (e.g. "post list" or "site empty").
+	 * @param callable|object|string $callable Command implementation as a class, function or closure.
+	 * @param array    $args {
+	 *    Optional. An associative array with additional registration parameters.
+	 *
+	 *    @type callable $before_invoke Callback to execute before invoking the command.
+	 *    @type callable $after_invoke  Callback to execute after invoking the command.
+	 *    @type string   $shortdesc     Short description (80 char or less) for the command.
+	 *    @type string   $longdesc      Description of arbitrary length for examples, etc.
+	 *    @type string   $synopsis      The synopsis for the command (string or array).
+	 *    @type string   $when          Execute callback on a named WP-CLI hook (e.g. before_wp_load).
+	 *    @type bool     $is_deferred   Whether the command addition had already been deferred.
+	 * }
+	 * @return bool True on success, false if deferred, hard error if registration failed.
+	 */
+	public static function add_command( $name, $callable, $args = [] ) {
+	}
+}
 
 
 /**
@@ -41,6 +98,23 @@ class Command {
 		self::gen_hb_manifest();
 		WP_CLI::success( 'Generated all doc pages.' );
 	}
+
+  /**
+	 * Parse doc block.
+	 *
+	 * @subcommand parse
+	 */
+	public function parse( $args, $assoc_args ) {
+		$rc = new \ReflectionClass(__NAMESPACE__ . '\HelloClass');
+
+    $phpdoc = $rc->getMethod('add_command')->getDocComment();
+
+    $output = self::parse_docblock( $phpdoc );
+
+    print_r( $output );
+    // print_r( $rc );
+		// var_dump();
+  }
 
 	/**
 	 * Generates internal API doc pages.
@@ -600,38 +674,38 @@ EOT;
 	 * @return array
 	 */
 	private static function parse_docblock( $docblock ) {
-		$ret        = [
+		$ret = array(
 			'description' => '',
-			'parameters'  => [],
-		];
+			'parameters'  => array(),
+		);
 		$extra_line = '';
-		$in_param   = false;
-		foreach ( preg_split( "/(\r?\n)/", $docblock ) as $line ) {
-			if ( preg_match( '/^(?=\s+?\*[^\/])(.+)/', $line, $matches ) ) {
+		$in_param = false;
+		foreach( preg_split("/(\r?\n)/", $docblock ) as $line ){
+			if ( preg_match('/^(?=\s+?\*[^\/])(.+)/', $line, $matches ) ) {
 				$info = trim( $matches[1] );
 				$info = preg_replace( '/^(\*\s+?)/', '', $info );
 				if ( $in_param ) {
-					list( $param_name, $key )                     = $in_param;
+					list( $param, $key ) = $in_param;
 					$ret['parameters'][ $param_name ][ $key ][2] .= PHP_EOL . $info;
 					if ( '}' === substr( $info, -1 ) ) {
 						$in_param = false;
 					}
-				} elseif ( '@' === $info[0] ) {
+				} else if ( $info[0] !== "@" ) {
 					$ret['description'] .= PHP_EOL . "{$extra_line}{$info}";
 				} else {
 					preg_match( '/@(\w+)/', $info, $matches );
 					$param_name = $matches[1];
-					$value      = str_replace( "@$param_name ", '', $info );
+					$value = str_replace( "@$param_name ", '', $info );
 					if ( ! isset( $ret['parameters'][ $param_name ] ) ) {
-						$ret['parameters'][ $param_name ] = [];
+						$ret['parameters'][ $param_name ] = array();
 					}
 					$ret['parameters'][ $param_name ][] = preg_split( '/[\s]+/', $value, 3 );
 					end( $ret['parameters'][ $param_name ] );
 					$key = key( $ret['parameters'][ $param_name ] );
 					reset( $ret['parameters'][ $param_name ] );
-					if ( ! empty( $ret['parameters'][ $param_name ][ $key ][2] )
-						&& '{' === substr( $ret['parameters'][ $param_name ][ $key ][2], -1 ) ) {
-						$in_param = [ $param_name, $key ];
+					if ( ! empty( $ret['parameters'][ $param_name ][ $key ][ 2 ] )
+						&& '{' === substr( $ret['parameters'][ $param_name ][ $key ][ 2 ] , -1 ) ) {
+						$in_param = array( $param_name, $key );
 					}
 				}
 				$extra_line = '';
@@ -640,14 +714,10 @@ EOT;
 			}
 		}
 		$ret['description'] = str_replace( '\/', '/', trim( $ret['description'], PHP_EOL ) );
-		$bits               = explode( PHP_EOL, $ret['description'] );
-		$short_desc         = [ array_shift( $bits ) ];
-		while ( isset( $bits[0] ) && ! empty( $bits[0] ) ) {
-			$short_desc[] = array_shift( $bits );
-		}
-		$ret['short_description'] = trim( implode( ' ', $short_desc ) );
-		$long_description         = trim( implode( PHP_EOL, $bits ), PHP_EOL );
-		$ret['long_description']  = $long_description;
+		$bits = explode( PHP_EOL, $ret['description'] );
+		$ret['short_description'] = array_shift( $bits );
+		$long_description = trim( implode( PHP_EOL, $bits ), PHP_EOL );
+		$ret['long_description'] = $long_description;
 		return $ret;
 	}
 
