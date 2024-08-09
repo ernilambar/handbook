@@ -10,14 +10,29 @@ use Reflection;
 use WP_CLI;
 use WP_CLI\Utils;
 
-
-define( 'WP_CLI_HANDBOOK_PATH', dirname( __DIR__ ) );
-
-
 /**
  * @when before_wp_load
  */
 class Command {
+
+  private $handbook_path = '';
+  private $root_path = '';
+
+  public function __construct() {
+		$this->handbook_path = getcwd();
+
+    $this->root_path  = Utils\phar_safe_path( dirname( __DIR__ ) );
+	}
+
+  /**
+	 * Hello command.
+	 *
+	 * @subcommand hello
+	 */
+	public function hello( $args, $assoc_args ) {
+    var_dump( $this->root_path );
+    WP_CLI::success( 'Say hello!' );
+  }
 
 	/**
 	 * Regenerates all doc pages.
@@ -99,7 +114,7 @@ This also means functions and methods not listed here are considered part of the
 
 EOT;
 
-		self::empty_dir( WP_CLI_HANDBOOK_PATH . '/internal-api/' );
+		self::empty_dir( $this->handbook_path . '/internal-api/' );
 
 		foreach ( $categories as $name => $apis ) {
 			$out .= '## ' . $name . PHP_EOL . PHP_EOL;
@@ -123,7 +138,7 @@ EOT;
 				$api['related']     = array_values( $api['related'] );
 				$api['has_related'] = ! empty( $api['related'] );
 				$api_doc            = self::render( 'internal-api.mustache', $api );
-				$path               = WP_CLI_HANDBOOK_PATH . "/internal-api/{$api['api_slug']}.md";
+				$path               = $this->handbook_path . "/internal-api/{$api['api_slug']}.md";
 				if ( ! is_dir( dirname( $path ) ) ) {
 					mkdir( dirname( $path ) );
 				}
@@ -132,7 +147,9 @@ EOT;
 			$out .= PHP_EOL . PHP_EOL;
 		}
 
-		file_put_contents( WP_CLI_HANDBOOK_PATH . '/internal-api.md', $out );
+    var_dump( $this->handbook_path );
+
+		file_put_contents( $this->handbook_path . '/internal-api.md', $out );
 		WP_CLI::success( 'Generated internal-api/' );
 	}
 
@@ -162,7 +179,7 @@ EOT;
 			WP_CLI::error( sprintf( "Install non-bundled packages by running '%s' first.", 'bin/install_packages.sh' ) );
 		}
 
-		self::empty_dir( WP_CLI_HANDBOOK_PATH . '/commands/' );
+		self::empty_dir( $this->handbook_path . '/commands/' );
 
 		$wp = WP_CLI::runcommand(
 			'cli cmd-dump',
@@ -244,9 +261,9 @@ EOT;
 	public function gen_commands_manifest() {
 		$manifest      = [];
 		$paths         = [
-			WP_CLI_HANDBOOK_PATH . '/commands/*.md',
-			WP_CLI_HANDBOOK_PATH . '/commands/*/*.md',
-			WP_CLI_HANDBOOK_PATH . '/commands/*/*/*.md',
+			$this->handbook_path . '/commands/*.md',
+			$this->handbook_path . '/commands/*/*.md',
+			$this->handbook_path . '/commands/*/*/*.md',
 		];
 		$commands_data = [];
 		foreach ( WP_CLI::get_root_command()->get_subcommands() as $command ) {
@@ -255,7 +272,7 @@ EOT;
 		foreach ( $paths as $path ) {
 			foreach ( glob( $path ) as $file ) {
 				$slug     = basename( $file, '.md' );
-				$cmd_path = str_replace( [ WP_CLI_HANDBOOK_PATH . '/commands/', '.md' ], '', $file );
+				$cmd_path = str_replace( [ $this->handbook_path . '/commands/', '.md' ], '', $file );
 				$title    = '';
 				$contents = file_get_contents( $file );
 				if ( preg_match( '/^#\swp\s(.+)/', $contents, $matches ) ) {
@@ -293,7 +310,7 @@ EOT;
 				}
 			}
 		}
-		file_put_contents( WP_CLI_HANDBOOK_PATH . '/bin/commands-manifest.json', json_encode( $manifest, JSON_PRETTY_PRINT ) );
+		file_put_contents( $this->handbook_path . '/bin/commands-manifest.json', json_encode( $manifest, JSON_PRETTY_PRINT ) );
 		$count = count( $manifest );
 		WP_CLI::success( "Generated bin/commands-manifest.json of {$count} commands" );
 	}
@@ -306,7 +323,7 @@ EOT;
 	public function gen_hb_manifest() {
 		$manifest = [];
 		// Top-level pages
-		foreach ( glob( WP_CLI_HANDBOOK_PATH . '/*.md' ) as $file ) {
+		foreach ( glob( $this->handbook_path . '/*.md' ) as $file ) {
 			$slug = basename( $file, '.md' );
 			if ( 'README' === $slug ) {
 				continue;
@@ -327,7 +344,7 @@ EOT;
 			];
 		}
 		// Internal API pages.
-		foreach ( glob( WP_CLI_HANDBOOK_PATH . '/internal-api/*.md' ) as $file ) {
+		foreach ( glob( $this->handbook_path . '/internal-api/*.md' ) as $file ) {
 			$slug     = basename( $file, '.md' );
 			$title    = '';
 			$contents = file_get_contents( $file );
@@ -344,7 +361,7 @@ EOT;
 				'parent'          => 'internal-api',
 			];
 		}
-		file_put_contents( WP_CLI_HANDBOOK_PATH . '/bin/handbook-manifest.json', json_encode( $manifest, JSON_PRETTY_PRINT ) );
+		file_put_contents( $this->handbook_path . '/bin/handbook-manifest.json', json_encode( $manifest, JSON_PRETTY_PRINT ) );
 		WP_CLI::success( 'Generated bin/handbook-manifest.json' );
 	}
 
@@ -653,7 +670,7 @@ EOT;
 
 	private static function render( $path, $binding ) {
 		$m        = new Mustache_Engine();
-		$template = file_get_contents( WP_CLI_HANDBOOK_PATH . "/bin/templates/$path" );
+		$template = file_get_contents( $this->handbook_path . "/templates/$path" );
 		return $m->render( $template, $binding );
 	}
 
@@ -676,4 +693,4 @@ EOT;
 	}
 }
 
-WP_CLI::add_command( 'handbook', '\WP_CLI\Handbook\Command' );
+// WP_CLI::add_command( 'handbook', '\WP_CLI\Handbook\Command' );
